@@ -1,0 +1,35 @@
+﻿@model List<MusicStore.Models.CartItem>
+@{
+    ViewData["Title"] = "Carrito";
+    var culture = new System.Globalization.CultureInfo("es-GT");
+}
+<h2>Carrito</h2>
+@if (!Model.Any())
+{
+    <p>Tu carrito está vacío.</p>
+}
+else
+{
+    <table class="table">
+        <thead><tr><th>Álbum</th><th>Artista</th><th>Cant.</th><th>Precio</th><th>Subtotal</th><th></th></tr></thead>
+        <tbody>
+            @foreach (var i in Model)
+            {
+                <tr>
+                    <td>@i.Album!.Title</td>
+                    <td>@i.Album!.Artist?.Name</td>
+                    <td>@i.Quantity</td>
+                    <td>@i.Album!.Price.ToString("C", culture)</td>
+                    <td>@( (i.Album!.Price * i.Quantity).ToString("C", culture) )</td>
+                    <td>
+                        <form asp-action="Remove" method="post">
+                            <input type="hidden" name="id" value="@i.AlbumId" />
+                            <button class="btn btn-sm btn-danger">Quitar</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <p><strong>Total: </strong>@ViewBag.Total.ToString("C", culture)</p>
+}

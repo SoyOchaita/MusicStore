@@ -1,0 +1,24 @@
+﻿@model MusicStore.Models.Genre
+@{
+    ViewData["Title"] = $"Género: {Model.Name}";
+}
+<h2>@Model.Name</h2>
+
+@if (Model.Albums == null || !Model.Albums.Any())
+{
+    <p>No hay álbumes en este género.</p>
+}
+else
+{
+    <ul>
+        @foreach (var a in Model.Albums)
+        {
+            <li>
+                <a asp-controller="Store" asp-action="Details" asp-route-id="@a.Id">
+                    @a.Title
+                </a> — @a.Artist?.Name — @($"Q{a.Price:0.00}")
+            </li>
+        }
+    </ul>
+}
+<p><a asp-controller="Store" asp-action="Index">← Volver a géneros</a></p>

@@ -1,0 +1,23 @@
+﻿# --- .NET build ---
+bin/
+obj/
+*.user
+*.swp
+*.suo
+*.userprefs
+.vs/
+
+# --- ASP.NET ---
+Properties/launchSettings.json
+
+# --- SQLite local ---
+App_Data/*.db
+App_Data/*.db-wal
+App_Data/*.db-shm
+
+# --- Docker ---
+*.log
+
+# --- Rider / VS Code / etc ---
+.idea/
+.vscode/
