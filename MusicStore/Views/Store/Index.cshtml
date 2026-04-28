@@ -9,62 +9,487 @@
     string selectedProductClass = ViewBag.SelectedProductClass as string ?? string.Empty;
     string search = ViewBag.Search as string ?? string.Empty;
     string selectedStockOrder = ViewBag.SelectedStockOrder as string ?? "stockDesc";
+    var activeFiltersCount = 0;
+    if (!string.IsNullOrWhiteSpace(search)) activeFiltersCount++;
+    if (selectedBrandId.HasValue) activeFiltersCount++;
+    if (selectedTypeId.HasValue) activeFiltersCount++;
+    if (!string.IsNullOrWhiteSpace(selectedProductClass)) activeFiltersCount++;
+    if (!string.Equals(selectedStockOrder, "stockDesc", StringComparison.OrdinalIgnoreCase)) activeFiltersCount++;
 }
-<div class="min-h-screen bg-gray-50">
-    <div class="max-w-[1500px] mx-auto px-3 sm:px-4 lg:px-6 py-5 sm:py-6">
-        <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-4 sm:p-5 mb-6">
-            <div class="flex flex-col gap-4">
-                <div class="flex items-center justify-between gap-3">
-                    <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900">Catalogo de gorras</h1>
-                    <span class="text-xs sm:text-sm text-gray-500">@Model.Count() productos</span>
-                </div>
+<style>
+    .caps-shell {
+        min-height: 100vh;
+        background: linear-gradient(180deg, #f7f7f8 0%, #f2f3f5 100%);
+    }
 
-                <form method="get" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2.5 items-center">
-                <input name="search" value="@search" class="lg:col-span-3 border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black/20" placeholder="Buscar por nombre o codigo" />
+    .caps-container {
+        max-width: 1480px;
+        margin: 0 auto;
+        padding: 22px 16px 30px;
+    }
 
-                <select name="brandId" class="lg:col-span-2 border border-gray-300 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-black/20">
+    .caps-toolbar {
+        background: #fff;
+        border: 1px solid #e8e9ee;
+        border-radius: 18px;
+        box-shadow: 0 6px 20px rgba(15, 23, 42, 0.05);
+        padding: 16px;
+        margin-bottom: 18px;
+    }
+
+    .caps-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    .caps-head-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .caps-title {
+        font-size: 2rem;
+        line-height: 1;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: #111827;
+    }
+
+    .caps-count {
+        font-size: 0.82rem;
+        color: #6b7280;
+        font-weight: 600;
+    }
+
+    .caps-active-badge {
+        font-size: 0.74rem;
+        font-weight: 700;
+        color: #1d4ed8;
+        background: #dbeafe;
+        border-radius: 999px;
+        padding: 4px 10px;
+    }
+
+    .caps-filters {
+        display: grid;
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .caps-field {
+        display: grid;
+        gap: 6px;
+        min-width: 0;
+    }
+
+    .caps-label {
+        font-size: 0.73rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-weight: 700;
+        color: #6b7280;
+    }
+
+    .caps-search-wrap {
+        grid-column: 1 / -1;
+    }
+
+    .caps-input,
+    .caps-select {
+        width: 100%;
+        border: 1px solid #d4d7de;
+        border-radius: 10px;
+        padding: 10px 12px;
+        background: #fff;
+        font-size: 0.92rem;
+        color: #111827;
+        outline: none;
+        transition: border-color .2s ease, box-shadow .2s ease;
+    }
+
+    .caps-input:focus,
+    .caps-select:focus {
+        border-color: #111827;
+        box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.10);
+    }
+
+    .caps-filter-btn {
+        border: 0;
+        border-radius: 10px;
+        background: #0f172a;
+        color: #fff;
+        padding: 10px 14px;
+        font-size: 0.92rem;
+        font-weight: 700;
+        transition: transform .18s ease, background-color .18s ease;
+    }
+
+    .caps-filter-btn:hover {
+        background: #000;
+        transform: translateY(-1px);
+    }
+
+    .caps-filter-actions {
+        grid-column: 1 / -1;
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+    }
+
+    .caps-clear-btn {
+        border: 1px solid #d4d7de;
+        border-radius: 10px;
+        background: #fff;
+        color: #374151;
+        padding: 10px 14px;
+        font-size: 0.92rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: border-color .18s ease, color .18s ease, background-color .18s ease;
+    }
+
+    .caps-clear-btn:hover {
+        border-color: #9ca3af;
+        color: #111827;
+        background: #f9fafb;
+    }
+
+    .caps-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .caps-card {
+        background: #fff;
+        border: 1px solid #e4e6eb;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+        transition: transform .22s ease, box-shadow .22s ease;
+        animation: revealCard .35s ease both;
+        animation-delay: calc(var(--i, 1) * 0.018s);
+    }
+
+    .caps-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 14px 24px rgba(15, 23, 42, 0.12);
+    }
+
+    .caps-image-wrap {
+        position: relative;
+        aspect-ratio: 1 / 1;
+        overflow: hidden;
+        background: linear-gradient(145deg, #f4f4f5, #e7e9ed);
+    }
+
+    .caps-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform .3s ease;
+    }
+
+    .caps-card:hover .caps-image {
+        transform: scale(1.05);
+    }
+
+    .caps-ribbon {
+        position: absolute;
+        top: 16px;
+        left: -46px;
+        width: 170px;
+        text-align: center;
+        background: #111;
+        color: #fff;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: .18em;
+        padding: 6px 0;
+        transform: rotate(-35deg);
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        z-index: 2;
+    }
+
+    .caps-placeholder {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: #b5b9c3;
+        user-select: none;
+    }
+
+    .caps-body {
+        padding: 12px 12px 14px;
+    }
+
+    .caps-top {
+        display: flex;
+        gap: 8px;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .caps-name {
+        font-size: 0.98rem;
+        font-weight: 700;
+        line-height: 1.25;
+        color: #111827;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        min-height: 2.45rem;
+    }
+
+    .caps-code {
+        font-size: 0.72rem;
+        color: #6b7280;
+        font-weight: 700;
+        background: #f2f3f5;
+        border-radius: 999px;
+        padding: 3px 8px;
+        white-space: nowrap;
+    }
+
+    .caps-meta {
+        margin-top: 8px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .caps-chip {
+        font-size: 0.70rem;
+        color: #374151;
+        background: #f1f3f6;
+        border-radius: 999px;
+        padding: 3px 8px;
+        font-weight: 600;
+    }
+
+    .caps-price-row {
+        margin-top: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    .caps-price {
+        font-size: 1.55rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: #111827;
+    }
+
+    .caps-stock {
+        font-size: 0.70rem;
+        font-weight: 700;
+        border-radius: 999px;
+        padding: 4px 9px;
+    }
+
+    .caps-stock.ok {
+        color: #047857;
+        background: #ecfdf5;
+    }
+
+    .caps-stock.out {
+        color: #be123c;
+        background: #fff1f2;
+    }
+
+    .caps-actions {
+        margin-top: 10px;
+        display: grid;
+        gap: 7px;
+    }
+
+    .caps-add {
+        width: 100%;
+        border: 0;
+        border-radius: 10px;
+        background: #0f172a;
+        color: #fff;
+        font-size: 0.86rem;
+        font-weight: 700;
+        padding: 10px;
+        transition: background-color .2s ease;
+    }
+
+    .caps-add:hover {
+        background: #000;
+    }
+
+    .caps-add:disabled {
+        background: #d1d5db;
+        color: #4b5563;
+    }
+
+    .caps-details {
+        text-align: center;
+        font-size: 0.84rem;
+        color: #4b5563;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .caps-details:hover {
+        color: #111827;
+        text-decoration: underline;
+    }
+
+    @@keyframes revealCard {
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@media (min-width: 680px) {
+        .caps-container {
+            padding: 24px 20px 36px;
+        }
+
+        .caps-filters {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .caps-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+        }
+    }
+
+    @@media (min-width: 1080px) {
+        .caps-toolbar {
+            padding: 18px;
+        }
+
+        .caps-filters {
+            grid-template-columns: 1.5fr repeat(4, 1fr) auto;
+            align-items: center;
+        }
+
+        .caps-search-wrap {
+            grid-column: auto;
+        }
+
+        .caps-filter-actions {
+            grid-column: auto;
+            justify-content: flex-start;
+        }
+
+        .caps-filter-btn {
+            padding: 10px 18px;
+            white-space: nowrap;
+        }
+
+        .caps-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 18px;
+        }
+    }
+
+    @@media (min-width: 1450px) {
+        .caps-grid {
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+        }
+    }
+</style>
+
+<div class="caps-shell">
+        <div class="caps-container">
+                <section class="caps-toolbar">
+                        <div class="caps-head">
+                                <h1 class="caps-title">Catalogo de gorras</h1>
+                                <div class="caps-head-right">
+                                    <span class="caps-count">@Model.Count() productos</span>
+                                    @if (activeFiltersCount > 0)
+                                    {
+                                        <span class="caps-active-badge">@activeFiltersCount filtros activos</span>
+                                    }
+                                </div>
+                        </div>
+
+                        <form method="get" class="caps-filters">
+                                <div class="caps-field caps-search-wrap">
+                                    <label class="caps-label" for="search">Buscar</label>
+                                    <input id="search" name="search" value="@search" class="caps-input" placeholder="Nombre, codigo o marca" />
+                                </div>
+
+                                <div class="caps-field">
+                                    <label class="caps-label" for="brandId">Marca</label>
+                                    <select id="brandId" name="brandId" class="caps-select">
                     <option value="">Todas las marcas</option>
                     @foreach (var brand in brands)
                     {
                         <option value="@brand.Id" selected="@(selectedBrandId.HasValue && selectedBrandId.Value == brand.Id ? "selected" : null)">@brand.Name</option>
                     }
-                </select>
+                                    </select>
+                                </div>
 
-                <select name="typeId" class="lg:col-span-2 border border-gray-300 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-black/20">
+                <div class="caps-field">
+                    <label class="caps-label" for="typeId">Tipo</label>
+                    <select id="typeId" name="typeId" class="caps-select">
                     <option value="">Todos los tipos</option>
                     @foreach (var type in types)
                     {
                         <option value="@type.Id" selected="@(selectedTypeId.HasValue && selectedTypeId.Value == type.Id ? "selected" : null)">@type.Name</option>
                     }
-                </select>
+                    </select>
+                </div>
 
-                <select name="productClass" class="lg:col-span-2 border border-gray-300 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-black/20">
+                <div class="caps-field">
+                    <label class="caps-label" for="productClass">Clase</label>
+                    <select id="productClass" name="productClass" class="caps-select">
                     <option value="">Todas las clases</option>
                     @foreach (var itemClass in classes)
                     {
                         <option value="@itemClass" selected="@(selectedProductClass == itemClass ? "selected" : null)">@itemClass</option>
                     }
-                </select>
+                    </select>
+                </div>
 
-                <select name="stockOrder" class="lg:col-span-2 border border-gray-300 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-black/20">
+                <div class="caps-field">
+                    <label class="caps-label" for="stockOrder">Orden</label>
+                    <select id="stockOrder" name="stockOrder" class="caps-select">
                     <option value="stockDesc" selected="@(selectedStockOrder == "stockDesc" ? "selected" : null)">Stock: mayor a menor</option>
                     <option value="stockAsc" selected="@(selectedStockOrder == "stockAsc" ? "selected" : null)">Stock: menor a mayor</option>
                     <option value="nameAsc" selected="@(selectedStockOrder == "nameAsc" ? "selected" : null)">Nombre A-Z</option>
-                </select>
+                    </select>
+                </div>
 
-                <button class="lg:col-span-1 bg-black text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-800 transition">Filtrar</button>
+                <div class="caps-filter-actions">
+                    <a asp-action="Index" class="caps-clear-btn">Limpiar</a>
+                    <button class="caps-filter-btn" type="submit">Aplicar filtros</button>
+                </div>
             </form>
         </div>
-        </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-5">
+        <section class="caps-grid">
+            @{ var index = 0; }
             @foreach (var product in Model)
             {
-                <article class="group bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
-                    <div class="aspect-square w-full overflow-hidden relative bg-gradient-to-br from-gray-100 to-gray-200">
+                index++;
+                <article class="caps-card" style="--i:@index">
+                    <div class="caps-image-wrap">
                         @if (product.Stock <= 0)
                         {
-                            <span class="absolute top-3 -left-11 z-10 w-40 text-center bg-black text-white text-[10px] font-bold tracking-[0.18em] py-1 rotate-[-36deg] border border-white/60 shadow-md select-none">
+                            <span class="caps-ribbon">
                                 AGOTADO
                             </span>
                         }
@@ -73,53 +498,52 @@
                         {
                             <img src="@Url.Content(product.AlbumArtUrl)"
                                  alt="@product.Title"
-                                 class="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300"
+                                 class="caps-image"
                                  loading="lazy" />
                         }
                         else
                         {
-                            <div class="absolute inset-0 flex items-center justify-center text-6xl text-gray-300 select-none">
+                            <div class="caps-placeholder">
                                 @(string.IsNullOrWhiteSpace(product.Title) ? "★" : (product.Title.Trim()[0].ToString().ToLower()))
                             </div>
                         }
                     </div>
 
-                    <div class="p-3.5 sm:p-4">
-                        <div class="flex items-start justify-between gap-2">
-                            <h3 class="text-[15px] sm:text-base leading-tight font-semibold text-gray-900 line-clamp-2 min-h-[2.4rem]">@product.Title</h3>
-                            <span class="text-[10px] sm:text-xs font-semibold text-gray-500 bg-gray-100 rounded-full px-2 py-0.5 shrink-0">@product.Code</span>
+                    <div class="caps-body">
+                        <div class="caps-top">
+                            <h3 class="caps-name">@product.Title</h3>
+                            <span class="caps-code">@product.Code</span>
                         </div>
 
-                        <div class="mt-2 flex flex-wrap gap-1.5 text-[10px] sm:text-xs">
-                            <span class="px-2 py-0.5 rounded-full bg-gray-100 text-gray-700">@product.Artist?.Name</span>
-                            <span class="px-2 py-0.5 rounded-full bg-gray-100 text-gray-700">@product.Genre?.Name</span>
-                            <span class="px-2 py-0.5 rounded-full bg-gray-100 text-gray-700">@product.ProductClass</span>
+                        <div class="caps-meta">
+                            <span class="caps-chip">@product.Artist?.Name</span>
+                            <span class="caps-chip">@product.Genre?.Name</span>
+                            <span class="caps-chip">@product.ProductClass</span>
                         </div>
 
-                        <div class="mt-3 flex items-center justify-between gap-2">
-                            <p class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900">@($"Q{product.Price:0.00}")</p>
-                            <span class="text-[11px] sm:text-xs font-semibold px-2.5 py-1 rounded-full @(product.Stock > 0 ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700")">
+                        <div class="caps-price-row">
+                            <p class="caps-price">@($"Q{product.Price:0.00}")</p>
+                            <span class="caps-stock @(product.Stock > 0 ? "ok" : "out")">
                                 Stock: @product.Stock
                             </span>
                         </div>
-                    </div>
 
-                    <div class="px-3.5 sm:px-4 pb-4 space-y-2">
-                        <form asp-controller="ShoppingCart" asp-action="AddToCart" method="post" class="block w-full">
+                        <div class="caps-actions">
+                            <form asp-controller="ShoppingCart" asp-action="AddToCart" method="post" class="block w-full">
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="id" value="@product.Id" />
-                            <button type="submit" class="w-full text-center bg-black text-white text-sm font-medium py-2.5 rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:text-gray-600 transition" disabled="@(product.Stock <= 0)">
+                            <button type="submit" class="caps-add" disabled="@(product.Stock <= 0)">
                                 Agregar al carrito
                             </button>
-                        </form>
+                            </form>
 
-                        <a asp-controller="Store" asp-action="Details" asp-route-id="@product.Id"
-                           class="block text-center text-sm text-gray-700 hover:text-black hover:underline">
+                            <a asp-controller="Store" asp-action="Details" asp-route-id="@product.Id" class="caps-details">
                             Ver detalles
-                        </a>
+                            </a>
+                        </div>
                     </div>
                 </article>
             }
-        </div>
+        </section>
     </div>
 </div>
