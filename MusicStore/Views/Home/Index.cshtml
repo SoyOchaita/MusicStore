@@ -1,141 +1,141 @@
 ﻿@model IEnumerable<MusicStore.Models.Album>?
 @{
-    ViewData["Title"] = "Caps Studio";
+        ViewData["Title"] = "Caps Studio";
     var albums = Model?.Take(8).ToList() ?? new List<MusicStore.Models.Album>();
 }
 
 <main class="bg-white text-black font-sans">
 
-    <!-- Hero -->
-    <section class="relative overflow-hidden">
-        <div class="mx-auto max-w-7xl px-4 py-12 md:py-16 grid md:grid-cols-2 gap-10 items-center">
-            <div>
-                <h1 class="text-5xl md:text-7xl font-extrabold leading-[0.95] tracking-tight">
-                    Caps Studio<br />
-                    <span class="inline-block">catalogo y venta de gorras</span>
-                </h1>
-                <p class="text-gray-600 mt-6 max-w-xl">
-                    Explora gorras por marca, tipo y clase. Encuentra modelos planos, curvos, trucker y bucket hat en un solo catalogo.
-                </p>
-                <div class="mt-7">
-                    <a asp-controller="Store" asp-action="Index"
-                       class="inline-flex items-center gap-3 border border-black px-6 py-3 rounded-full hover:bg-black hover:text-white transition">
-                        seleccionar en el catálogo
-                        <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-black text-white group-[.hover]:bg-white group-[.hover]:text-black">→</span>
-                    </a>
+        <!-- Hero -->
+        <section class="relative overflow-hidden">
+                <div class="mx-auto max-w-7xl px-4 py-12 md:py-16 grid md:grid-cols-2 gap-10 items-center">
+                        <div>
+                                <h1 class="text-5xl md:text-7xl font-extrabold leading-[0.95] tracking-tight">
+                                        Caps Studio<br />
+                                        <span class="inline-block">catalogo y venta de gorras</span>
+                                </h1>
+                                <p class="text-gray-600 mt-6 max-w-xl">
+                                        Explora gorras por marca, tipo y clase. Encuentra modelos planos, curvos, trucker y bucket hat en un solo catalogo.
+                                </p>
+                                <div class="mt-7">
+                                        <a asp-controller="Store" asp-action="Index"
+                                             class="inline-flex items-center gap-3 border border-black px-6 py-3 rounded-full hover:bg-black hover:text-white transition">
+                                                seleccionar en el catálogo
+                                                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-black text-white group-[.hover]:bg-white group-[.hover]:text-black">→</span>
+                                        </a>
+                                </div>
+                        </div>
+
+                        <div class="relative">
+                                <img src="https://images.unsplash.com/photo-1521369909029-2afed882baee?auto=format&fit=crop&w=1200&q=80"
+                                         alt="Coleccion de gorras"
+                                         class="w-full max-w-xl mx-auto rounded-3xl object-cover aspect-[4/3] shadow-xl" />
+                        </div>
                 </div>
-            </div>
+        </section>
 
-            <div class="relative">
-                <img src="https://images.unsplash.com/photo-1521369909029-2afed882baee?auto=format&fit=crop&w=1200&q=80"
-                     alt="Coleccion de gorras"
-                     class="w-full max-w-xl mx-auto rounded-3xl object-cover aspect-[4/3] shadow-xl" />
-            </div>
-        </div>
-    </section>
+        <!-- New Products -->
+        <section class="px-4 md:px-8 lg:px-12 py-10 md:py-14">
+                <div class="mx-auto max-w-7xl">
+                        <div class="flex items-end justify-between mb-6">
+                                <h2 class="text-3xl md:text-5xl font-extrabold lowercase tracking-tight">nuevos productos</h2>
+                                <a asp-controller="Store" asp-action="Index" class="text-sm underline hover:no-underline">(ver todos)</a>
+                        </div>
 
-    <!-- New Products -->
-    <section class="px-4 md:px-8 lg:px-12 py-10 md:py-14">
-        <div class="mx-auto max-w-7xl">
-            <div class="flex items-end justify-between mb-6">
-                <h2 class="text-3xl md:text-5xl font-extrabold lowercase tracking-tight">nuevos productos</h2>
-                <a asp-controller="Store" asp-action="Index" class="text-sm underline hover:no-underline">(ver todos)</a>
-            </div>
-
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
-                @if (albums.Any())
-                {
-                    foreach (var a in albums)
-                    {
-                        <article class="group flex flex-col">
-                            <div class="aspect-square w-full rounded-md overflow-hidden relative bg-gradient-to-br from-gray-100 to-gray-200">
-                                @if (!string.IsNullOrWhiteSpace(a.AlbumArtUrl))
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
+                                @if (albums.Any())
                                 {
-                                    <img src="@Url.Content(a.AlbumArtUrl)"
-                                         alt="@a.Title"
-                                         class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                                        foreach (var a in albums)
+                                        {
+                                                <article class="group flex flex-col">
+                                                        <div class="aspect-square w-full rounded-md overflow-hidden relative bg-gradient-to-br from-gray-100 to-gray-200">
+                                                                @if (!string.IsNullOrWhiteSpace(a.AlbumArtUrl))
+                                                                {
+                                                                        <img src="@Url.Content(a.AlbumArtUrl)"
+                                                                                 alt="@a.Title"
+                                                                                 class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                                                                }
+                                                                else
+                                                                {
+                                                                        <div class="absolute inset-0 flex items-center justify-center text-6xl md:text-7xl text-gray-300 select-none">
+                                                                                @(string.IsNullOrWhiteSpace(a.Title) ? "★" : (a.Title.Trim()[0].ToString().ToLower()))
+                                                                        </div>
+                                                                }
+                                                                <a asp-controller="Store" asp-action="Details" asp-route-id="@a.Id"
+                                                                     class="absolute inset-0 ring-1 ring-transparent group-hover:ring-black transition"></a>
+                                                        </div>
+
+                                                        <div class="mt-2 flex items-center justify-between gap-2">
+                                                                <div>
+                                                                        <p class="text-sm leading-tight">
+                                                                                @((a.Artist?.Name ?? "marca") + " — " + (a.Title ?? "gorra"))
+                                                                        </p>
+                                                                        <span class="text-xs text-gray-500">
+                                                                                @((a.Genre?.Name ?? "") + " • " + (a.ProductClass ?? ""))
+                                                                        </span>
+                                                                </div>
+                                                                <span class="text-xs text-gray-700 whitespace-nowrap">
+                                                                        @($"Q{a.Price:0.00}")
+                                                                </span>
+                                                        </div>
+
+                                                        <div class="mt-2">
+                                                                <!-- Unificado a POST + antiforgery -->
+                                                                <form asp-controller="ShoppingCart" asp-action="AddToCart" method="post" class="inline-flex">
+                                                                        @Html.AntiForgeryToken()
+                                                                        <input type="hidden" name="id" value="@a.Id" />
+                                                                        <button type="submit"
+                                                                                        class="inline-flex text-xs items-center gap-2 border border-black px-3 py-1.5 rounded-full hover:bg-black hover:text-white transition">
+                                                                                agregar al carrito <span>+</span>
+                                                                        </button>
+                                                                </form>
+                                                        </div>
+                                                </article>
+                                        }
                                 }
                                 else
                                 {
-                                    <div class="absolute inset-0 flex items-center justify-center text-6xl md:text-7xl text-gray-300 select-none">
-                                        @(string.IsNullOrWhiteSpace(a.Title) ? "★" : (a.Title.Trim()[0].ToString().ToLower()))
-                                    </div>
+                                        @for (int i = 0; i < 8; i++)
+                                        {
+                                                <div class="animate-pulse">
+                                                        <div class="aspect-square w-full rounded-md bg-gray-200"></div>
+                                                        <div class="mt-2 h-3 bg-gray-200 rounded w-3/4"></div>
+                                                        <div class="mt-1 h-3 bg-gray-200 rounded w-1/3"></div>
+                                                </div>
+                                        }
                                 }
-                                <a asp-controller="Store" asp-action="Details" asp-route-id="@a.Id"
-                                   class="absolute inset-0 ring-1 ring-transparent group-hover:ring-black transition"></a>
-                            </div>
-
-                            <div class="mt-2 flex items-center justify-between gap-2">
-                                <div>
-                                    <p class="text-sm leading-tight">
-                                        @((a.Artist?.Name ?? "marca") + " — " + (a.Title ?? "gorra"))
-                                    </p>
-                                    <span class="text-xs text-gray-500">
-                                        @((a.Genre?.Name ?? "") + " • " + (a.ProductClass ?? ""))
-                                    </span>
-                                </div>
-                                <span class="text-xs text-gray-700 whitespace-nowrap">
-                                    @($"Q{a.Price:0.00}")
-                                </span>
-                            </div>
-
-                            <div class="mt-2">
-                                <!-- Unificado a POST + antiforgery -->
-                                <form asp-controller="ShoppingCart" asp-action="AddToCart" method="post" class="inline-flex">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="id" value="@a.Id" />
-                                    <button type="submit"
-                                            class="inline-flex text-xs items-center gap-2 border border-black px-3 py-1.5 rounded-full hover:bg-black hover:text-white transition">
-                                        agregar al carrito <span>+</span>
-                                    </button>
-                                </form>
-                            </div>
-                        </article>
-                    }
-                }
-                else
-                {
-                    @for (int i = 0; i < 8; i++)
-                    {
-                        <div class="animate-pulse">
-                            <div class="aspect-square w-full rounded-md bg-gray-200"></div>
-                            <div class="mt-2 h-3 bg-gray-200 rounded w-3/4"></div>
-                            <div class="mt-1 h-3 bg-gray-200 rounded w-1/3"></div>
                         </div>
-                    }
-                }
-            </div>
-        </div>
-    </section>
-
-    <!-- About -->
-    <section class="px-4 md:px-8 lg:px-12 py-14 md:py-20 border-t border-gray-200">
-        <div class="mx-auto max-w-7xl grid md:grid-cols-2 gap-10 md:gap-14 items-start">
-            <!-- Reemplaza este bloque por la imagen -->
-            <div class="relative rounded-xl overflow-hidden aspect-[4/3]">
-                <img src="https://media.istockphoto.com/id/472504024/es/foto/hombre-de-retrato-detr%C3%A1s-del-mostrador-de-check-out-vinilo-tienda-de-m%C3%BAsica-pop-registro.jpg?s=612x612&w=0&k=20&c=Z11rcOLnHxDTzHqAaAM6PlN_ZyJHha7NSwqwY695azQ="
-                     alt="Catorce Street - tienda de vinilos"
-                     class="absolute inset-0 w-full h-full object-cover"
-                     loading="lazy" decoding="async" />
-            </div>
-
-            <div>
-                <h3 class="text-3xl md:text-4xl font-extrabold mb-2">catorce street</h3>
-                <p class="text-sm text-gray-500 mb-4">(Acerca de nosotros)</p>
-                <p class="leading-relaxed text-gray-700">
-                    Seleccionamos gorras con enfoque en marca, estilo y rotacion real de inventario. El catalogo combina modelos urbanos,
-                    deportivos y coleccionables para que filtres rapido por tipo, clase y codigo.
-                </p>
-                <div class="mt-6">
-                    <a asp-controller="Store" asp-action="Index"
-                       class="inline-flex items-center gap-2 border border-black px-5 py-2.5 rounded-full hover:bg-black hover:text-white transition">
-                        Explorar catálogo
-                        <span><img class="h-5 w-5" alt="Explorar" src="https://unpkg.com/heroicons@2.1.1/24/outline/arrow-left-start-on-rectangle.svg" /></span>
-                    </a>
                 </div>
-            </div>
-        </div>
-    </section>
+        </section>
+
+        <!-- About -->
+        <section class="px-4 md:px-8 lg:px-12 py-14 md:py-20 border-t border-gray-200">
+                <div class="mx-auto max-w-7xl grid md:grid-cols-2 gap-10 md:gap-14 items-start">
+                        <!-- Reemplaza este bloque por la imagen -->
+                        <div class="relative rounded-xl overflow-hidden aspect-[4/3]">
+                                <img src="https://media.istockphoto.com/id/472504024/es/foto/hombre-de-retrato-detr%C3%A1s-del-mostrador-de-check-out-vinilo-tienda-de-m%C3%BAsica-pop-registro.jpg?s=612x612&w=0&k=20&c=Z11rcOLnHxDTzHqAaAM6PlN_ZyJHha7NSwqwY695azQ="
+                                         alt="Catorce Street - tienda de vinilos"
+                                         class="absolute inset-0 w-full h-full object-cover"
+                                         loading="lazy" decoding="async" />
+                        </div>
+
+                        <div>
+                                <h3 class="text-3xl md:text-4xl font-extrabold mb-2">catorce street</h3>
+                                <p class="text-sm text-gray-500 mb-4">(Acerca de nosotros)</p>
+                                <p class="leading-relaxed text-gray-700">
+                                        Seleccionamos gorras con enfoque en marca, estilo y rotacion real de inventario. El catalogo combina modelos urbanos,
+                                        deportivos y coleccionables para que filtres rapido por tipo, clase y codigo.
+                                </p>
+                                <div class="mt-6">
+                                        <a asp-controller="Store" asp-action="Index"
+                                             class="inline-flex items-center gap-2 border border-black px-5 py-2.5 rounded-full hover:bg-black hover:text-white transition">
+                                                Explorar catálogo
+                                                <span><img class="h-5 w-5" alt="Explorar" src="https://unpkg.com/heroicons@2.1.1/24/outline/arrow-left-start-on-rectangle.svg" /></span>
+                                        </a>
+                                </div>
+                        </div>
+                </div>
+        </section>
 
 </main>
 

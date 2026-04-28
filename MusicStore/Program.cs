@@ -30,7 +30,11 @@ builder.Services
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 // MVC + Razor Pages (para Identity UI)
-builder.Services.AddControllersWithViews();
+var mvcBuilder = builder.Services.AddControllersWithViews();
+if (builder.Environment.IsDevelopment())
+{
+    mvcBuilder.AddRazorRuntimeCompilation();
+}
 builder.Services.AddRazorPages();
 
 // Sesión
