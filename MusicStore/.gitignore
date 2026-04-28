@@ -1,0 +1,95 @@
+﻿# OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+Desktop.ini
+
+# Visual Studio / Rider
+.vs/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+_ReSharper*/
+*.DotSettings.user
+
+# Build / Artifacts
+bin/
+obj/
+out/
+artifacts/
+[Bb]uild/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+
+# NuGet
+packages/
+*.nupkg
+*.snupkg
+
+# Tests / Coverage / Logs
+TestResults/
+*.coverage
+*.coveragexml
+coverage/
+coverage-*/
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# VS Code
+.vscode/
+
+# Node / Tailwind / Tooling caches
+node_modules/
+.pnpm-store/
+.npm/
+.yarn/
+.cache/
+.tmp/
+dist/
+build/
+
+# LibMan (restaurable)
+wwwroot/lib/
+
+# Local DB (SQLite/SQL Server localdb)
+*.mdf
+*.ldf
+*.sqlite
+*.db
+*.db-shm
+*.db-wal
+
+# Config sensibles (no versionar)
+.env
+.env.*
+!/.env.example
+appsettings.*.local.json
+appsettings.Local.json
+secrets.json
+
+# Publicación
+publish/
+*.pubxml.user
+*/Properties/PublishProfiles/*.pubxml.user
+
+# Mapas de sourcemaps (opcional)
+wwwroot/**/*.map
+
+# Uploads (solo conserva marcadores)
+wwwroot/uploads/**
+!wwwroot/uploads/.gitkeep
+wwwroot/uploads/albums/**
+!wwwroot/uploads/albums/.gitkeep
+wwwroot/uploads/artists/**
+!wwwroot/uploads/artists/.gitkeep
+wwwroot/uploads/genres/**
+!wwwroot/uploads/genres/.gitkeep

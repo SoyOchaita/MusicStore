@@ -1,0 +1,30 @@
+@{
+    ViewData["Title"] = "Panel Admin";
+    dynamic stats = ViewBag.Stats ?? new { Products = 0, Orders = 0 };
+}
+<div class="min-h-screen bg-gray-50 grid grid-cols-1 md:grid-cols-4">
+    <aside class="bg-black text-white p-4">
+        <h2 class="text-lg font-semibold mb-4">Administración</h2>
+        <ul class="space-y-2 text-sm">
+            <li><a asp-controller="StoreManager" asp-action="Index" class="hover:underline">Productos</a></li>
+            <li><a asp-controller="Admin" asp-action="Index" class="hover:underline">Dashboard</a></li>
+        </ul>
+    </aside>
+    <main class="bg-gray-50 p-6 md:col-span-3">
+        <h1 class="text-2xl font-semibold text-gray-800 mb-4">Dashboard</h1>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-white shadow rounded p-4">
+                <p class="text-gray-600">Productos</p>
+                <p class="text-2xl font-bold">@stats.Products</p>
+            </div>
+            <div class="bg-white shadow rounded p-4">
+                <p class="text-gray-600">Pedidos</p>
+                <p class="text-2xl font-bold">@stats.Orders</p>
+            </div>
+            <div class="bg-white shadow rounded p-4">
+                <p class="text-gray-600">Usuarios</p>
+                <p class="text-2xl font-bold">-</p>
+            </div>
+        </div>
+    </main>
+</div>

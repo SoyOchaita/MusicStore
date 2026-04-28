@@ -1,0 +1,26 @@
+services:
+  app-watch:
+    image: mcr.microsoft.com/dotnet/sdk:8.0
+    container_name: musicstore-app-watch
+    working_dir: /src
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://0.0.0.0:8080
+      DOTNET_USE_POLLING_FILE_WATCHER: "1"
+      ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+    command: dotnet watch --project MusicStore/MusicStore.csproj --configuration Release run --urls http://0.0.0.0:8080
+    ports:
+      - "${APP_PORT}:8080"
+    volumes:
+      - ./:/src
+      - dotnet_nuget:/root/.nuget/packages
+      - app_watch_bin:/src/MusicStore/bin
+      - app_watch_obj:/src/MusicStore/obj
+
+volumes:
+  dotnet_nuget:
+  app_watch_bin:
+  app_watch_obj:

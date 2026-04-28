@@ -1,145 +1,156 @@
 using System;
-using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using MusicStore;
 using MusicStore.Models;
-using Microsoft.AspNetCore.Mvc.Rendering;
-
 
 namespace MusicStore.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class StoreManagerController : Controller
     {
         private readonly MusicStoreContext _context;
+        private readonly IWebHostEnvironment _env;
 
-        public StoreManagerController(MusicStoreContext context)
+        public StoreManagerController(MusicStoreContext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
 
-        // GET: StoreManager
-        public async Task<IActionResult> Index()
+        // GET: /StoreManager
+        public async Task<IActionResult> Index(string? stockOrder)
         {
-            var albums = await _context.Albums
-                .Include(a => a.Genre)
-                .Include(a => a.Artist)
-                .OrderBy(a => a.Title)
-                .ToListAsync();
+            var resolvedStockOrder = string.IsNullOrWhiteSpace(stockOrder) ? "stockDesc" : stockOrder;
+            ViewBag.SelectedStockOrder = resolvedStockOrder;
 
-            return View(albums);
-        }
+            var query = _context.Albums
+                .Include(product => product.Genre)
+                .Include(product => product.Artist)
+                .AsQueryable();
 
-        // GET: StoreManager/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
+            query = resolvedStockOrder switch
             {
-                return NotFound();
-            }
+                "stockAsc" => query
+                    .OrderBy(product => product.Stock)
+                    .ThenBy(product => product.Code),
+                "codeAsc" => query
+                    .OrderBy(product => product.Code),
+                _ => query
+                    .OrderByDescending(product => product.Stock)
+                    .ThenBy(product => product.Code)
+            };
 
+            var products = await query.ToListAsync();
+
+            return View(products);
+        }
+
+        // GET: /StoreManager/Details/5
+        public async Task<IActionResult> Details(int id)
+        {
             var album = await _context.Albums
-                .Include(a => a.Artist)
                 .Include(a => a.Genre)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (album == null)
-            {
-                return NotFound();
-            }
+                .Include(a => a.Artist)
+                .FirstOrDefaultAsync(a => a.Id == id);
 
+            if (album == null) return NotFound();
             return View(album);
         }
 
-        // GET: StoreManager/Create
+        // GET: /StoreManager/Create
         public IActionResult Create()
         {
-            ViewData["GenreId"] = new SelectList(_context.Genres.OrderBy(g => g.Name), "Id", "Name");
-            ViewData["ArtistId"] = new SelectList(_context.Artists.OrderBy(a => a.Name), "Id", "Name");
+            PopulateLookups();
             return View();
         }
 
-        // POST: StoreManager/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: /StoreManager/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,Price,GenreId,ArtistId")] Album album)
+        public async Task<IActionResult> Create([Bind("Code,Title,ProductClass,Stock,Price,GenreId,ArtistId,AlbumArtUrl")] Album album, IFormFile? albumImage)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _context.Add(album);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                PopulateLookups(album.GenreId, album.ArtistId);
+                return View(album);
             }
-            ViewData["GenreId"] = new SelectList(_context.Genres.OrderBy(g => g.Name), "Id", "Name", album.GenreId);
-            ViewData["ArtistId"] = new SelectList(_context.Artists.OrderBy(a => a.Name), "Id", "Name", album.ArtistId);
-            return View(album);
+
+            // Si viene archivo, se guarda en /wwwroot/uploads/albums y se asigna la ruta relativa
+            if (albumImage is { Length: > 0 })
+            {
+                album.AlbumArtUrl = await SaveFileAsync(albumImage, "uploads/albums");
+            }
+
+            _context.Albums.Add(album);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
-        // GET: StoreManager/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        // GET: /StoreManager/Edit/5
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null) return NotFound();
             var album = await _context.Albums.FindAsync(id);
             if (album == null) return NotFound();
 
-            ViewData["GenreId"] = new SelectList(_context.Genres.OrderBy(g => g.Name), "Id", "Name", album.GenreId);
-            ViewData["ArtistId"] = new SelectList(_context.Artists.OrderBy(a => a.Name), "Id", "Name", album.ArtistId);
+            PopulateLookups(album.GenreId, album.ArtistId);
             return View(album);
         }
 
-        // POST: StoreManager/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: /StoreManager/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Price,GenreId,ArtistId")] Album album)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Code,Title,ProductClass,Stock,Price,GenreId,ArtistId,AlbumArtUrl")] Album album, IFormFile? albumImage)
         {
             if (id != album.Id) return NotFound();
 
             if (!ModelState.IsValid)
             {
-                ViewData["GenreId"] = new SelectList(_context.Genres.OrderBy(g => g.Name), "Id", "Name", album.GenreId);
-                ViewData["ArtistId"] = new SelectList(_context.Artists.OrderBy(a => a.Name), "Id", "Name", album.ArtistId);
+                PopulateLookups(album.GenreId, album.ArtistId);
                 return View(album);
+            }
+
+            // Si se sube un archivo nuevo, reemplaza la URL/Path
+            if (albumImage is { Length: > 0 })
+            {
+                album.AlbumArtUrl = await SaveFileAsync(albumImage, "uploads/albums");
             }
 
             try
             {
-                _context.Update(album);                  // <-- importante
-                await _context.SaveChangesAsync();       // <-- importante
-                return RedirectToAction(nameof(Index));
+                _context.Update(album);
+                await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!_context.Albums.Any(a => a.Id == id)) return NotFound();
+                var exists = await _context.Albums.AnyAsync(a => a.Id == id);
+                if (!exists) return NotFound();
                 throw;
             }
+
+            return RedirectToAction(nameof(Index));
         }
 
-        // GET: StoreManager/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        // GET: /StoreManager/Delete/5
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
             var album = await _context.Albums
-                .Include(a => a.Artist)
                 .Include(a => a.Genre)
+                .Include(a => a.Artist)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (album == null)
-            {
-                return NotFound();
-            }
 
+            if (album == null) return NotFound();
             return View(album);
         }
 
-        // POST: StoreManager/Delete/5
+        // POST: /StoreManager/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -148,15 +159,41 @@ namespace MusicStore.Controllers
             if (album != null)
             {
                 _context.Albums.Remove(album);
+                await _context.SaveChangesAsync();
             }
-
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool AlbumExists(int id)
+        private void PopulateLookups(int? selectedGenreId = null, int? selectedArtistId = null)
         {
-            return _context.Albums.Any(e => e.Id == id);
+            ViewData["GenreId"] = new SelectList(
+                _context.Genres.OrderBy(g => g.Name),
+                nameof(Genre.Id),
+                nameof(Genre.Name),
+                selectedGenreId
+            );
+
+            ViewData["ArtistId"] = new SelectList(
+                _context.Artists.OrderBy(a => a.Name),
+                nameof(Artist.Id),
+                nameof(Artist.Name),
+                selectedArtistId
+            );
+        }
+
+        private async Task<string> SaveFileAsync(IFormFile file, string relativeFolder)
+        {
+            var uploadsRoot = Path.Combine(_env.WebRootPath, relativeFolder.Replace('/', Path.DirectorySeparatorChar));
+            Directory.CreateDirectory(uploadsRoot);
+
+            var safeFile = $"{Guid.NewGuid():N}{Path.GetExtension(file.FileName)}";
+            var fullPath = Path.Combine(uploadsRoot, safeFile);
+
+            await using var stream = new FileStream(fullPath, FileMode.Create);
+            await file.CopyToAsync(stream);
+
+            // Devuelve ruta relativa para usar en <img src="/uploads/...">
+            return $"/{relativeFolder.Trim('/')}/{safeFile}";
         }
     }
 }

@@ -1,46 +1,133 @@
-@model IEnumerable<MusicStore.Models.Album>
+﻿@model IEnumerable<MusicStore.Models.Album>
 
 @{
-    ViewData["Title"] = "Index";
+  ViewData["Title"] = "Administracion de gorras";
+  var selectedStockOrder = ViewBag.SelectedStockOrder as string ?? "stockDesc";
 }
 
-<h1>Administrar Albumes</h1>
+<main class="min-h-[85vh] bg-gray-50 px-4 sm:px-6 lg:px-8 py-10">
+  <div class="max-w-7xl mx-auto bg-white rounded-2xl shadow-md border border-gray-100 p-6 sm:p-8 space-y-6">
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Price)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Genre)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Artist)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.Title</td>
-                <td>@item.Price.ToString("C", new System.Globalization.CultureInfo("es-GT"))</td>
-                <td>@item.Genre?.Name</td>  
-                <td>@item.Artist?.Name</td>  
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+    <!-- ENCABEZADO -->
+    <div class="flex flex-col gap-3">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-gray-800 flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-2v13M9 19H5a2 2 0 01-2-2V8a2 2 0 012-2h4m0 13l12-2" />
+        </svg>
+        Administracion de gorras
+        </h1>
+
+        <a asp-action="Create"
+           class="flex items-center justify-center gap-2 bg-black text-white px-4 py-2 rounded-md shadow-sm hover:bg-gray-800 focus:ring-2 focus:ring-black/40 transition text-sm font-medium"
+           aria-label="Agregar nueva gorra">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          <span class="hidden sm:inline">Agregar nuevo</span>
+        </a>
+      </div>
+
+      <form method="get" class="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <select name="stockOrder" class="border rounded-md p-2 max-w-sm">
+          <option value="stockDesc" selected="@(selectedStockOrder == "stockDesc" ? "selected" : null)">Stock: mayor a menor</option>
+          <option value="stockAsc" selected="@(selectedStockOrder == "stockAsc" ? "selected" : null)">Stock: menor a mayor</option>
+          <option value="codeAsc" selected="@(selectedStockOrder == "codeAsc" ? "selected" : null)">Codigo A-Z</option>
+        </select>
+        <button class="bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800 w-fit">Aplicar</button>
+      </form>
+    </div>
+
+    <!-- TABLA -->
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-left border-collapse rounded-lg overflow-hidden">
+        <thead class="bg-gray-100 text-gray-700 uppercase text-xs sm:text-sm font-medium">
+          <tr>
+            <th class="p-3 sm:p-4">Vista</th>
+            <th class="p-3 sm:p-4">Codigo</th>
+            <th class="p-3 sm:p-4">Nombre</th>
+            <th class="p-3 sm:p-4">Marca</th>
+            <th class="p-3 sm:p-4">Tipo</th>
+            <th class="p-3 sm:p-4">Clase</th>
+            <th class="p-3 sm:p-4">Stock</th>
+            <th class="p-3 sm:p-4">Precio</th>
+            <th class="p-3 sm:p-4 text-right">Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-gray-200 text-gray-800 text-sm sm:text-base">
+          @if (Model != null && Model.Any())
+          {
+              foreach (var item in Model)
+              {
+                  <tr class="hover:bg-gray-50 transition">
+                    <td class="p-3 sm:p-4">
+                      <div class="w-14 h-14 rounded-lg border border-gray-200 bg-gray-50 overflow-hidden flex items-center justify-center">
+                        @if (!string.IsNullOrWhiteSpace(item.AlbumArtUrl))
+                        {
+                          <img src="@Url.Content(item.AlbumArtUrl)" alt="@item.Title" class="w-full h-full object-cover" loading="lazy" />
+                        }
+                        else
+                        {
+                          <span class="text-[10px] text-gray-400 uppercase">Sin imagen</span>
+                        }
+                      </div>
+                    </td>
+                    <td class="p-3 sm:p-4 text-gray-500">@item.Code</td>
+                    <td class="p-3 sm:p-4 font-medium">@item.Title</td>
+                    <td class="p-3 sm:p-4">@item.Artist?.Name</td>
+                    <td class="p-3 sm:p-4">@item.Genre?.Name</td>
+                    <td class="p-3 sm:p-4">@item.ProductClass</td>
+                    <td class="p-3 sm:p-4">@item.Stock</td>
+                    <td class="p-3 sm:p-4">@($"Q{item.Price:0.00}")</td>
+                    <td class="p-3 sm:p-4 text-right">
+                      <div class="flex justify-end gap-1 sm:gap-2 flex-wrap">
+
+                        <!-- EDITAR -->
+                        <a asp-action="Edit" asp-route-id="@item.Id"
+                           class="inline-flex items-center justify-center gap-1 sm:gap-2 bg-green-600 hover:bg-green-700 text-white px-2.5 sm:px-3 py-1.5 rounded-md transition focus:ring-2 focus:ring-green-400/50"
+                           title="Editar" aria-label="Editar">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+                          </svg>
+                          <span class="hidden md:inline">Editar</span>
+                        </a>
+
+                        <!-- DETALLES -->
+                        <a asp-action="Details" asp-route-id="@item.Id"
+                           class="inline-flex items-center justify-center gap-1 sm:gap-2 bg-gray-600 hover:bg-gray-700 text-white px-2.5 sm:px-3 py-1.5 rounded-md transition focus:ring-2 focus:ring-gray-400/50"
+                           title="Detalles" aria-label="Detalles">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          <span class="hidden md:inline">Detalles</span>
+                        </a>
+
+                        <!-- ELIMINAR -->
+                        <a asp-action="Delete" asp-route-id="@item.Id"
+                           class="inline-flex items-center justify-center gap-1 sm:gap-2 bg-red-600 hover:bg-red-700 text-white px-2.5 sm:px-3 py-1.5 rounded-md transition focus:ring-2 focus:ring-red-400/50"
+                           title="Eliminar" aria-label="Eliminar">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3m-4 0h14" />
+                          </svg>
+                          <span class="hidden md:inline">Eliminar</span>
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
+              }
+          }
+          else
+          {
+              <tr>
+                <td colspan="9" class="p-6 text-center text-gray-500 italic">
+                  No hay gorras registradas.
                 </td>
-            </tr>
-        }
-    </tbody>
-</table>
+              </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>

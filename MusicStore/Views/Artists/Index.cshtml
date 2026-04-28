@@ -1,35 +1,63 @@
-@model IEnumerable<MusicStore.Models.Artist>
-
+﻿@model IEnumerable<MusicStore.Models.Artist>
 @{
-    ViewData["Title"] = "Index";
+  ViewData["Title"] = "Administracion de marcas";
 }
+<div class="flex items-center justify-center min-h-[85vh] bg-gray-50 px-4 sm:px-6 lg:px-8">
+  <div class="w-full max-w-6xl bg-white rounded-2xl shadow-md border border-gray-100 p-6 sm:p-8 space-y-6">
+    <div class="flex items-center justify-between gap-4">
+      <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-gray-800">Administracion de marcas</h1>
+      <a asp-action="Create" class="inline-flex items-center gap-2 bg-black text-white font-medium py-2.5 sm:py-3 sm:px-5 rounded-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black/40 transition">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+        <span class="hidden sm:inline">Agregar nuevo</span>
+      </a>
+    </div>
 
-<h1>Administrar Artistas </h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    <div class="rounded-2xl border border-gray-200 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-left">
+          <thead class="bg-gray-100 text-gray-700 uppercase text-xs sm:text-sm">
+            <tr>
+              <th class="p-3 sm:p-4">Foto</th>
+              <th class="p-3 sm:p-4">Nombre</th>
+              <th class="p-3 sm:p-4 text-right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200 text-sm sm:text-base">
+          @if (Model != null && Model.Any())
+          {
+            foreach (var item in Model)
+            {
+              <tr class="hover:bg-gray-50 transition">
+                <td class="p-3 sm:p-4">
+                  <div class="w-12 h-12 rounded-md overflow-hidden bg-gray-100 border border-gray-200">
+                    @if (!string.IsNullOrWhiteSpace(item.ImageUrl))
+                    {
+                      <img src="@Url.Content(item.ImageUrl)" alt="@item.Name" class="w-full h-full object-cover" onerror="this.style.display='none';" />
+                    }
+                    else
+                    {
+                      <div class="w-full h-full grid place-items-center text-gray-400 text-sm">—</div>
+                    }
+                  </div>
+                </td>
+                <td class="p-3 sm:p-4 font-medium text-gray-900">@item.Name</td>
+                <td class="p-3 sm:p-4">
+                  <div class="flex justify-end gap-1.5 sm:gap-2">
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="inline-flex items-center gap-2 bg-green-600 text-white py-1.5 px-2.5 sm:px-3 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400/50 transition"><span class="hidden md:inline">Editar</span></a>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="inline-flex items-center gap-2 bg-gray-600 text-white py-1.5 px-2.5 sm:px-3 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400/50 transition"><span class="hidden md:inline">Detalles</span></a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="inline-flex items-center gap-2 bg-red-600 text-white py-1.5 px-2.5 sm:px-3 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400/50 transition"><span class="hidden md:inline">Eliminar</span></a>
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+          else
+          {
+            <tr><td colspan="3" class="p-6 text-center text-gray-500 italic">No hay marcas registradas.</td></tr>
+          }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

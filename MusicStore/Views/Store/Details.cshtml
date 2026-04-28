@@ -2,14 +2,42 @@
 @{
     ViewData["Title"] = Model.Title;
 }
-<h2>@Model.Title</h2>
-<p><strong>Artista:</strong> @Model.Artist?.Name</p>
-<p><strong>Género:</strong> @Model.Genre?.Name</p>
-<p><strong>Precio:</strong> @($"Q{Model.Price:0.00}")</p>
+<div class="min-h-screen bg-gray-50 py-10">
+  <div class="max-w-3xl mx-auto bg-white shadow rounded-lg p-6">
+    <div class="flex flex-col md:flex-row gap-6">
+      <div class="md:w-80">
+        <div class="aspect-square w-full rounded-md overflow-hidden relative bg-gradient-to-br from-gray-100 to-gray-200">
+          @if (!string.IsNullOrWhiteSpace(Model.AlbumArtUrl))
+          {
+            <img src="@Url.Content(Model.AlbumArtUrl)" alt="@Model.Title" class="absolute inset-0 w-full h-full object-cover" />
+          }
+        </div>
+      </div>
+      <div class="flex-1">
+        <h1 class="text-2xl md:text-3xl font-semibold text-gray-800">@Model.Title</h1>
+        <p class="text-gray-600 mt-1"><span class="font-medium">Codigo:</span> @Model.Code</p>
+        <p class="text-gray-600"><span class="font-medium">Marca:</span> @Model.Artist?.Name</p>
+        <p class="text-gray-600"><span class="font-medium">Tipo:</span> @Model.Genre?.Name</p>
+        <p class="text-gray-600"><span class="font-medium">Clase:</span> @Model.ProductClass</p>
+        <p class="text-gray-600"><span class="font-medium">Stock:</span> @Model.Stock</p>
+        <p class="text-gray-800 font-semibold mt-2">@($"Q{Model.Price:0.00}")</p>
 
-<p><a asp-controller="Store" asp-action="Browse" asp-route-genreId="@Model.GenreId">← Volver a @Model.Genre?.Name</a></p>
+        <div class="mt-4 flex flex-col sm:flex-row gap-2">
+          <form asp-controller="ShoppingCart" asp-action="AddToCart" method="post" class="inline-flex">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button type="submit" class="bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800 inline-flex items-center gap-2" disabled="@(Model.Stock <= 0)">
+              <img class="h-5 w-5" alt="Agregar al carrito" src="https://unpkg.com/heroicons@2.1.1/24/outline/shopping-cart.svg" />
+              <span class="hidden sm:inline">Agregar al carrito</span>
+            </button>
+          </form>
 
-<form asp-controller="ShoppingCart" asp-action="Add" method="post" class="mt-3">
-    <input type="hidden" name="id" value="@Model.Id" />
-    <button class="btn btn-primary">Agregar al carrito</button>
-</form>
+          <a asp-controller="Store" asp-action="Index" class="bg-gray-200 text-gray-900 px-4 py-2 rounded-md hover:bg-gray-300 inline-flex items-center gap-2 text-center">
+            <img class="h-5 w-5" alt="Volver" src="https://unpkg.com/heroicons@2.1.1/24/outline/arrow-left.svg" />
+            <span class="hidden sm:inline">Volver</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

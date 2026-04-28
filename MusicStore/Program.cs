@@ -1,58 +1,64 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Data.Sqlite;          
+using MusicStore;
+using MusicStore.Data;
 using MusicStore.Models;
-using System.IO;
-using Microsoft.AspNetCore.Localization;
 using System.Globalization;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Detecta si corre dentro de contenedor
-var inContainer = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
-
-// Carpeta de datos: bajo /app (en Docker) o en el ContentRoot local
-var dataDir = Path.Combine(builder.Environment.ContentRootPath, "App_Data");
-Directory.CreateDirectory(dataDir);    // asegúrate que exista
-
-var dbPath = Path.Combine(dataDir, "musicstore.db");
-Console.WriteLine($"[DB PATH] {dbPath}");
-
-// Cadena robusta (crea si no existe, cache compartida)
-var csb = new SqliteConnectionStringBuilder
-{
-    DataSource = dbPath,
-    Mode = SqliteOpenMode.ReadWriteCreate,
-    Cache = SqliteCacheMode.Shared
-};
-
+// DbContexts
 builder.Services.AddDbContext<MusicStoreContext>(options =>
-    options.UseSqlite(csb.ToString()));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Identity (UI + Roles)
+builder.Services
+    .AddDefaultIdentity<IdentityUser>(options =>
+    {
+        options.SignIn.RequireConfirmedAccount = false;
+        options.Password.RequireDigit = false;
+        options.Password.RequiredLength = 6;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequireUppercase = false;
+        options.Password.RequireLowercase = false;
+    })
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>();
+
+// MVC + Razor Pages (para Identity UI)
 builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
+
+// SesiÃ³n
+builder.Services.AddDistributedMemoryCache();
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddSession();
+builder.Services.AddSession(options =>
+{
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    // options.IdleTimeout = TimeSpan.FromMinutes(20);
+});
 
 var app = builder.Build();
 
-// Aplica migraciones + seed con pequeño retry por si hay carrera en hot reload
+// Migraciones y seed
 using (var scope = app.Services.CreateScope())
 {
-    var services = scope.ServiceProvider;
-    var db = services.GetRequiredService<MusicStoreContext>();
+    var sp = scope.ServiceProvider;
 
-    for (var attempt = 1; ; attempt++)
-    {
-        try
-        {
-            db.Database.Migrate();
-            SeedData.Initialize(services);
-            break;
-        }
-        catch (SqliteException ex) when (ex.SqliteErrorCode == 10 && attempt < 5) // disk I/O
-        {
-            await Task.Delay(400); // breve espera y reintenta
-        }
-    }
+    // Aplica migraciones
+    sp.GetRequiredService<ApplicationDbContext>().Database.Migrate();
+    sp.GetRequiredService<MusicStoreContext>().Database.Migrate();
+
+    // Seed de dominio (Ã¡lbumes/genres/artists)
+    SeedData.Initialize(sp);
+
+    // Seed de roles/usuarios
+    await IdentitySeeder.SeedAsync(sp);
 }
 
 if (!app.Environment.IsDevelopment())
@@ -61,8 +67,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-
-// Cultura por defecto
+// LocalizaciÃ³n opcional
 var gt = new CultureInfo("es-GT");
 var loc = new RequestLocalizationOptions
 {
@@ -70,15 +75,25 @@ var loc = new RequestLocalizationOptions
     SupportedCultures = new[] { gt },
     SupportedUICultures = new[] { gt }
 };
-
-
-
-
 app.UseRequestLocalization(loc);
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
-app.UseSession();
+
+app.UseAuthentication();
 app.UseAuthorization();
-app.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
+
+// Session ANTES del mapeo de rutas
+app.UseSession();
+
+// Rutas
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}"
+);
+
+// Identity UI
+app.MapRazorPages();
+
 app.Run();

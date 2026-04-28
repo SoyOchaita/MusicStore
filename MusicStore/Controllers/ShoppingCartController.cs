@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MusicStore;
 using MusicStore.Models;
+using MusicStore.Services; // Usar el servicio de carrito unificado
 
 namespace MusicStore.Controllers
 {
@@ -8,33 +10,55 @@ namespace MusicStore.Controllers
     {
         private readonly IServiceProvider _services;
         private readonly MusicStoreContext _db;
-        public ShoppingCartController(IServiceProvider services, MusicStoreContext db)
-        { _services = services; _db = db; }
 
-        // GET /ShoppingCart
-        public async Task<IActionResult> Index()
+        public ShoppingCartController(IServiceProvider services, MusicStoreContext db)
+        {
+            _services = services;
+            _db = db;
+        }
+
+        // GET: /ShoppingCart
+        public IActionResult Index()
         {
             var cart = ShoppingCart.GetCart(_services);
-            var items = await cart.GetItemsAsync();
-            ViewBag.Total = await cart.GetTotalAsync();
+            var items = cart.GetCartItems();
+            ViewBag.Total = cart.GetTotal();
             return View(items);
         }
 
-        // POST /ShoppingCart/Add/5
+        // POST: /ShoppingCart/AddToCart/{id}
         [HttpPost]
-        public async Task<IActionResult> Add(int id)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddToCart(int id)
         {
-            var album = await _db.Albums.FirstOrDefaultAsync(a => a.Id == id);
+            var album = await _db.Albums
+                                 .Include(a => a.Artist)
+                                 .Include(a => a.Genre)
+                                 .FirstOrDefaultAsync(a => a.Id == id);
             if (album == null) return NotFound();
-            await ShoppingCart.GetCart(_services).AddToCartAsync(album);
+
+            var cart = ShoppingCart.GetCart(_services);
+            cart.AddToCart(album);
             return RedirectToAction(nameof(Index));
         }
 
-        // POST /ShoppingCart/Remove/5
+        // POST: /ShoppingCart/RemoveFromCart/{id}
         [HttpPost]
-        public async Task<IActionResult> Remove(int id)
+        [ValidateAntiForgeryToken]
+        public IActionResult RemoveFromCart(int id)
         {
-            await ShoppingCart.GetCart(_services).RemoveFromCartAsync(id);
+            var cart = ShoppingCart.GetCart(_services);
+            cart.RemoveFromCart(id);
+            return RedirectToAction(nameof(Index));
+        }
+
+        // POST: /ShoppingCart/EmptyCart
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EmptyCart()
+        {
+            var cart = ShoppingCart.GetCart(_services);
+            await cart.EmptyCartAsync();
             return RedirectToAction(nameof(Index));
         }
     }

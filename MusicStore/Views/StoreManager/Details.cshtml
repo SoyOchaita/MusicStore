@@ -1,42 +1,103 @@
-@model MusicStore.Models.Album
-
+﻿@model MusicStore.Models.Album
 @{
-    ViewData["Title"] = "Details";
+  ViewData["Title"] = "Detalles de la gorra";
 }
 
-<h1>Details</h1>
+<div class="flex items-center justify-center min-h-[85vh] bg-gray-50 px-4 sm:px-6 lg:px-8">
+  <div class="w-full max-w-md sm:max-w-lg lg:max-w-3xl bg-white rounded-2xl shadow-md border border-gray-100 p-6 sm:p-8 lg:p-10 space-y-6 transition-all">
 
-<div>
-    <h4>Album</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Title)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Title)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Price)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Price)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Genre)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Genre.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Artist)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Artist.Name)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <!-- HEADER -->
+    <div class="flex items-center gap-3 sm:gap-4">
+      <div class="h-12 w-12 sm:h-14 sm:w-14 flex items-center justify-center rounded-full bg-emerald-100 text-emerald-600 shrink-0">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 sm:w-7 sm:h-7">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4m5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-emerald-700 leading-tight">
+        Detalles de la gorra
+      </h1>
+    </div>
+
+    <!-- DESCRIPCIÓN -->
+    <p class="text-gray-700 text-base sm:text-lg leading-relaxed">
+      Consulta la informacion actual registrada de la gorra.
+    </p>
+
+    <!-- DATOS -->
+    <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 sm:p-6 space-y-4">
+
+      <div>
+        <div class="text-sm font-medium text-gray-500 mb-1">Codigo</div>
+        <div class="text-lg sm:text-xl font-semibold text-gray-900">@Model.Code</div>
+      </div>
+
+      <div>
+        <div class="text-sm font-medium text-gray-500 mb-1">Nombre</div>
+        <div class="text-lg sm:text-xl font-semibold text-gray-900">@Model.Title</div>
+      </div>
+
+      <div>
+        <div class="text-sm font-medium text-gray-500 mb-1">Marca</div>
+        <div class="text-lg sm:text-xl text-gray-900">@(@Model.Artist?.Name ?? "-")</div>
+      </div>
+
+      <div>
+        <div class="text-sm font-medium text-gray-500 mb-1">Tipo</div>
+        <div class="text-lg sm:text-xl text-gray-900">@(@Model.Genre?.Name ?? "-")</div>
+      </div>
+
+      <div>
+        <div class="text-sm font-medium text-gray-500 mb-1">Clase</div>
+        <div class="text-lg sm:text-xl text-gray-900">@Model.ProductClass</div>
+      </div>
+
+      <div>
+        <div class="text-sm font-medium text-gray-500 mb-1">Stock</div>
+        <div class="text-lg sm:text-xl text-gray-900">@Model.Stock</div>
+      </div>
+
+      <div>
+        <div class="text-sm font-medium text-gray-500 mb-1">Precio</div>
+        <div class="text-lg sm:text-xl text-gray-900">
+          @String.Format(System.Globalization.CultureInfo.GetCultureInfo("es-GT"), "{0:C}", Model.Price)
+        </div>
+      </div>
+
+     <!---<div>
+        <div class="text-sm font-medium text-gray-500 mb-2">Portada</div>
+        <div class="w-32 h-32 rounded-lg overflow-hidden bg-white border border-gray-200 shadow-sm">
+          <img src="@(string.IsNullOrWhiteSpace(Model.AlbumArtUrl) ? "https://via.placeholder.com/128?text=Album" : Model.AlbumArtUrl)"
+               alt="Portada de @Model.Title"
+               class="w-full h-full object-cover"
+               loading="lazy"
+               onerror="this.src='https://via.placeholder.com/128?text=Album'; this.alt='Sin imagen';" />
+        </div>
+      </div>
+            </div>-->
+
+    <!-- ACCIONES -->
+    <div class="pt-4 flex flex-col sm:flex-row gap-3 border-t border-gray-100">
+
+      <!-- EDITAR -->
+      <a asp-action="Edit" asp-route-id="@Model.Id"
+         class="flex-1 flex justify-center items-center gap-2 bg-black text-white font-medium py-2.5 sm:py-3 sm:px-5 rounded-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black/40 transition"
+         aria-label="Editar gorra">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 3.487a2.1 2.1 0 013 3L7.5 18.75 3 19.5l.75-4.5L16.862 3.487z" />
+        </svg>
+        <span class="text-sm sm:text-base">Editar</span>
+      </a>
+
+      <!-- VOLVER -->
+      <a asp-action="Index"
+         class="flex-1 flex justify-center items-center gap-2 bg-gray-200 text-gray-900 font-medium py-2.5 sm:py-3 sm:px-5 rounded-lg hover:bg-gray-300 transition"
+         aria-label="Volver al listado">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+        <span class="text-sm sm:text-base">Volver al listado</span>
+      </a>
+    </div>
+
+  </div>
 </div>

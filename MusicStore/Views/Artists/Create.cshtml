@@ -1,33 +1,28 @@
 @model MusicStore.Models.Artist
-
 @{
-    ViewData["Title"] = "Create";
+  ViewData["Title"] = "Nueva marca";
 }
+<div class="flex items-center justify-center min-h-[85vh] bg-gray-50 px-4 sm:px-6 lg:px-8">
+  <div class="w-full max-w-xl bg-white rounded-2xl shadow-md border border-gray-100 p-6 sm:p-8 space-y-6">
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 flex items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+      </svg>
+      Crear marca
+    </h1>
 
-<h1>Create</h1>
+    <form asp-action="Create" method="post" enctype="multipart/form-data" class="space-y-6">
+      @Html.AntiForgeryToken()
+      @await Html.PartialAsync("_FormPartial", Model)
 
-<h4>Artist</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
+      <div class="flex flex-col sm:flex-row gap-3 border-t border-gray-100 pt-4">
+        <button type="submit" class="bg-black text-white px-5 py-2.5 rounded-md hover:bg-gray-800 focus:ring-2 focus:ring-black/40 transition">Guardar</button>
+        <a asp-action="Index" class="bg-gray-200 text-gray-900 px-5 py-2.5 rounded-md hover:bg-gray-300 transition">Cancelar</a>
+      </div>
+    </form>
+
+    @section Scripts {
+        @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    }
+  </div>
 </div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}

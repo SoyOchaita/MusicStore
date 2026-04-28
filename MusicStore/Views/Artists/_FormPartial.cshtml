@@ -1,0 +1,23 @@
+@model MusicStore.Models.Artist
+
+<div asp-validation-summary="All" class="text-rose-600 text-sm mb-4"></div>
+
+<div class="space-y-2">
+  <label asp-for="Name" class="block text-sm font-medium text-gray-700">Nombre</label>
+  <input asp-for="Name" required autocomplete="off" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black/40" placeholder="Ejemplo: Luis Miguel" />
+  <span asp-validation-for="Name" class="text-rose-600 text-sm"></span>
+</div>
+
+<div class="space-y-2 mt-4">
+  <label asp-for="ImageUrl" class="block text-sm font-medium text-gray-700">Imagen (URL)</label>
+  <input asp-for="ImageUrl" type="url" autocomplete="off" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black/40" placeholder="https://..." />
+  <input type="file" name="imageFile" accept="image/*" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black/40" />
+  <span asp-validation-for="ImageUrl" class="text-rose-600 text-sm"></span>
+
+  @if (!string.IsNullOrWhiteSpace(Model?.ImageUrl))
+  {
+    <div class="mt-2">
+      <img src="@Url.Content(Model.ImageUrl)" alt="Previsualización" class="w-24 h-24 object-cover rounded-lg border border-gray-200" />
+    </div>
+  }
+</div>

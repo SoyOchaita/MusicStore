@@ -1,0 +1,44 @@
+﻿@page
+@model LoginModel
+@{
+    ViewData["Title"] = "Iniciar sesión";
+}
+<div class="flex min-h-screen items-center justify-center bg-gray-100">
+  <div class="w-full max-w-md p-8 bg-white rounded-xl shadow-md">
+    <h1 class="text-2xl font-bold mb-6 text-center">Iniciar sesión</h1>
+    <form id="account" method="post" class="space-y-4">
+      <div asp-validation-summary="ModelOnly" class="text-sm text-red-600"></div>
+
+      <div>
+        <label asp-for="Input.Email" class="block text-sm font-medium text-gray-700">Correo electrónico</label>
+        <input asp-for="Input.Email" class="mt-1 w-full border border-gray-300 rounded-lg p-2 focus:ring-black focus:border-black" />
+        <span asp-validation-for="Input.Email" class="text-sm text-red-500"></span>
+      </div>
+
+      <div>
+        <label asp-for="Input.Password" class="block text-sm font-medium text-gray-700">Contraseña</label>
+        <input asp-for="Input.Password" class="mt-1 w-full border border-gray-300 rounded-lg p-2 focus:ring-black focus:border-black" />
+        <span asp-validation-for="Input.Password" class="text-sm text-red-500"></span>
+      </div>
+
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          <input asp-for="Input.RememberMe" class="h-4 w-4 text-black border-gray-300 rounded" />
+          <label asp-for="Input.RememberMe" class="ml-2 text-sm text-gray-700">Recordarme</label>
+        </div>
+        <a asp-page="./ForgotPassword" class="text-sm text-black hover:underline">¿Olvidaste tu contraseña?</a>
+      </div>
+
+      <button type="submit" class="w-full bg-black text-white p-2 rounded-lg hover:bg-gray-800">Iniciar sesión</button>
+
+      <p class="text-sm text-center text-gray-600 mt-4">
+        ¿No tienes cuenta?
+        <a asp-page="./Register" class="text-black hover:underline">Regístrate</a>
+      </p>
+    </form>
+  </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

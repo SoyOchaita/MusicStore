@@ -1,24 +1,60 @@
-@model MusicStore.Models.Genre
-
+﻿@model MusicStore.Models.Genre
 @{
-    ViewData["Title"] = "Details";
+  ViewData["Title"] = "Detalles del tipo";
 }
 
-<h1>Details</h1>
+<div class="flex items-center justify-center min-h-[85vh] bg-gray-50 px-4 sm:px-6 lg:px-8">
+  <div class="w-full max-w-md sm:max-w-2xl lg:max-w-3xl bg-white rounded-2xl shadow-md border border-gray-100 p-6 sm:p-8 lg:p-10 space-y-8 transition-all">
 
-<div>
-    <h4>Genre</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <!-- Header con ícono -->
+    <div class="flex items-center gap-3 sm:gap-4">
+      <div class="h-12 w-12 sm:h-14 sm:w-14 flex items-center justify-center rounded-full bg-indigo-100 text-indigo-600 shrink-0">
+        <!-- Heroicon: tag -->
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 sm:w-7 sm:h-7" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 3h6a2 2 0 012 2v6a2 2 0 01-.586 1.414l-7 7a2 2 0 01-2.828 0l-4-4a2 2 0 010-2.828l7-7A2 2 0 019 3z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h.01" />
+        </svg>
+      </div>
+      <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-gray-800">
+        Detalles del tipo
+      </h1>
+    </div>
+
+    <!-- Sección de información -->
+    <div class="space-y-6">
+      <div class="flex flex-col sm:grid sm:grid-cols-3 sm:gap-4 border-b border-gray-100 pb-3">
+        <dt class="text-sm font-semibold text-gray-500 uppercase">ID</dt>
+        <dd class="sm:col-span-2 text-lg font-medium text-gray-800">@Model.Id</dd>
+      </div>
+
+      <div class="flex flex-col sm:grid sm:grid-cols-3 sm:gap-4 border-b border-gray-100 pb-3">
+        <dt class="text-sm font-semibold text-gray-500 uppercase">Nombre</dt>
+        <dd class="sm:col-span-2 text-lg font-semibold text-indigo-600">@Model.Name</dd>
+      </div>
+    </div>
+
+    <!-- Botones -->
+    <div class="mt-8 flex flex-col sm:flex-row gap-3">
+      <a asp-action="Edit" asp-route-id="@Model.Id"
+         class="flex-1 flex justify-center items-center gap-2 bg-black text-white font-medium py-2.5 sm:py-3 sm:px-6 rounded-lg hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-400 transition"
+         aria-label="Editar">
+        <!-- Heroicon: pencil-square -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.125-1.125a1.125 1.125 0 011.59 1.591l-1.125 1.125M16.862 4.487l-8.7 8.7a4.5 4.5 0 01-1.91 1.142l-2.316.578.578-2.316a4.5 4.5 0 011.142-1.91l8.7-8.7" />
+        </svg>
+        <span class="text-sm sm:text-base">Editar</span>
+      </a>
+
+      <a asp-action="Index"
+         class="flex-1 flex justify-center items-center gap-2 bg-gray-200 text-gray-900 font-medium py-2.5 sm:py-3 sm:px-6 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 transition"
+         aria-label="Volver al listado">
+        <!-- Heroicon: arrow-left -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+        <span class="text-sm sm:text-base">Volver al listado</span>
+      </a>
+    </div>
+
+  </div>
 </div>

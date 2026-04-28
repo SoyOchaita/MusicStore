@@ -1,24 +1,31 @@
 ﻿using Microsoft.EntityFrameworkCore;
-// Elimina o corrige la siguiente línea según la ubicación real de tus modelos
-using MusicStore.Models; // Si tus modelos están en MusicStore.Models
+using MusicStore.Models;
 
-namespace MusicStore.Models
+namespace MusicStore
 {
     public class MusicStoreContext : DbContext
     {
-        // El constructor recibe las opciones (cadena de conexión y proveedor)
-        public MusicStoreContext(DbContextOptions<MusicStoreContext> options)
-            : base(options) { }
+        public MusicStoreContext(DbContextOptions<MusicStoreContext> options) : base(options) { }
 
-        // DbSets = “tablas” que EF Core rastrea
-        public DbSet<Album> Albums => Set<Album>();
-        public DbSet<Genre> Genres => Set<Genre>();
-        public DbSet<Artist> Artists => Set<Artist>();
-        public DbSet<CartItem> CartItems => Set<CartItem>();
+        // Si necesitas IHttpContextAccessor, puedes añadir el otro ctor opcionalmente:
+        // private readonly IHttpContextAccessor? _httpContextAccessor;
+        // public MusicStoreContext(DbContextOptions<MusicStoreContext> options, IHttpContextAccessor accessor) : base(options) { _httpContextAccessor = accessor; }
 
-        // Opcional: reglas/relaciones adicionales
+        public DbSet<Album> Albums { get; set; } = default!;
+        public DbSet<Artist> Artists { get; set; } = default!;
+        public DbSet<Genre> Genres { get; set; } = default!;
+        public DbSet<CartItem> CartItems { get; set; } = default!;
+        public DbSet<Order> Orders { get; set; } = default!;
+        public DbSet<OrderDetail> OrderDetails { get; set; } = default!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Album>()
+                        .HasIndex(a => a.Code)
+                        .IsUnique();
+
             modelBuilder.Entity<Album>()
                         .HasOne(a => a.Genre)
                         .WithMany(g => g.Albums)
@@ -30,6 +37,13 @@ namespace MusicStore.Models
                         .WithMany(ar => ar.Albums)
                         .HasForeignKey(a => a.ArtistId)
                         .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<CartItem>(e =>
+            {
+                e.Property(p => p.CartItemId).HasColumnName("Id");
+                e.Property(p => p.Count).HasColumnName("Quantity");
+                e.HasIndex(p => new { p.CartId, p.AlbumId });
+            });
         }
     }
 }

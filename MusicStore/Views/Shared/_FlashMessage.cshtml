@@ -1,0 +1,18 @@
+@{
+  ViewData["Section"] = "Álbumes";
+  ViewData["Breadcrumb"] = "Crear";
+  Layout = "_AdminLayout";
+}
+
+<main class="p-6 md:p-8">
+  <div class="max-w-2xl bg-white rounded-xl shadow-sm border border-gray-200 p-6 mx-auto">
+    <form asp-action="Create" method="post" enctype="multipart/form-data" class="space-y-6">
+      @Html.AntiForgeryToken()
+      @await Html.PartialAsync("_FormPartial", (object)Model) <!-- o _FormPartial por entidad -->
+      <div class="flex gap-2">
+        <button type="submit" class="bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800">Guardar</button>
+        <a asp-action="Index" class="bg-gray-200 text-gray-900 px-4 py-2 rounded-md hover:bg-gray-300">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</main>

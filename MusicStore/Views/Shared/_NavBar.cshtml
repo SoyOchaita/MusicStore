@@ -1,0 +1,210 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+<nav class="bg-gray-50 border-b border-gray-200 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+        <!-- Logo -->
+        <a asp-controller="Home" asp-action="Index"
+           class="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight hover:text-gray-700 transition">
+            Catorce Street
+        </a>
+
+        <!-- Toggle móvil -->
+        <button id="menuToggle"
+                class="md:hidden p-2 rounded-lg bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 transition"
+                aria-label="Abrir menú" aria-controls="menuPanel" aria-expanded="false">
+            <img id="iconOpen" class="h-6 w-6" alt="Abrir"
+                 src="https://unpkg.com/heroicons@2.1.1/24/outline/bars-3.svg" />
+            <img id="iconClose" class="h-6 w-6 hidden" alt="Cerrar"
+                 src="https://unpkg.com/heroicons@2.1.1/24/outline/x-mark.svg" />
+        </button>
+
+        <!-- Navegación desktop -->
+        <div class="hidden md:flex items-center gap-4">
+            <a asp-controller="Store" asp-action="Index"
+               class="inline-flex items-center gap-1 text-gray-700 hover:text-gray-900 transition">
+                <img class="h-5 w-5" alt="Tienda"
+                     src="https://unpkg.com/heroicons@2.1.1/24/outline/magnifying-glass.svg" />
+                <span class="hidden sm:inline">Tienda</span>
+            </a>
+
+            <a asp-controller="ShoppingCart" asp-action="Index"
+               class="inline-flex items-center gap-1 text-gray-700 hover:text-gray-900 transition">
+                <img class="h-5 w-5" alt="Carrito"
+                     src="https://unpkg.com/heroicons@2.1.1/24/outline/shopping-cart.svg" />
+                <span class="hidden sm:inline">Carrito</span>
+            </a>
+
+            @if (User.IsInRole("Admin"))
+            {
+                <details class="relative group">
+                    <summary class="list-none select-none cursor-pointer px-3 py-1.5 rounded-lg hover:bg-gray-100 text-gray-700 inline-flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-gray-200 transition"
+                             role="button" aria-haspopup="menu">
+                        <img class="h-5 w-5" alt="Administración"
+                             src="https://unpkg.com/heroicons@2.1.1/24/outline/cog-6-tooth.svg" />
+                        <span class="hidden sm:inline">Administración</span>
+                    </summary>
+                    <div class="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-xl shadow-md overflow-hidden z-50">
+                        <ul class="py-1 text-sm" role="menu" aria-label="Menú de administración">
+                            <li>
+                                <a asp-controller="StoreManager" asp-action="Index"
+                                   class="block px-4 py-2 hover:bg-gray-50 inline-flex items-center gap-2" role="menuitem">
+                                    <img class="w-4 h-4" alt="Gorras"
+                                         src="https://unpkg.com/heroicons@2.1.1/24/outline/rectangle-stack.svg" />
+                                    Gorras
+                                </a>
+                            </li>
+                            <li>
+                                <a asp-controller="Genres" asp-action="Index"
+                                   class="block px-4 py-2 hover:bg-gray-50 inline-flex items-center gap-2" role="menuitem">
+                                    <img class="w-4 h-4" alt="Tipos"
+                                         src="https://unpkg.com/heroicons@2.1.1/24/outline/tag.svg" />
+                                    Tipos
+                                </a>
+                            </li>
+                            <li>
+                                <a asp-controller="Artists" asp-action="Index"
+                                   class="block px-4 py-2 hover:bg-gray-50 inline-flex items-center gap-2" role="menuitem">
+                                    <img class="w-4 h-4" alt="Marcas"
+                                         src="https://unpkg.com/heroicons@2.1.1/24/outline/user-group.svg" />
+                                    Marcas
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </details>
+            }
+        </div>
+
+        <!-- Usuario -->
+        <div class="hidden md:flex items-center gap-3">
+            @if (SignInManager.IsSignedIn(User))
+            {
+                <span class="hidden sm:inline-flex items-center gap-1 text-gray-700">
+                    <img class="h-5 w-5" alt="Usuario"
+                         src="https://unpkg.com/heroicons@2.1.1/24/outline/user.svg" />
+                    Hola, @User.Identity!.Name
+                </span>
+                <form asp-controller="Account" asp-action="Logout" method="post" class="inline">
+                    @Html.AntiForgeryToken()
+                    <button class="bg-black text-white px-3 py-2 rounded-lg hover:bg-gray-800 flex items-center gap-1 transition focus:outline-none focus:ring-2 focus:ring-black/40" title="Cerrar sesión">
+                        <img class="h-5 w-5" alt="Cerrar sesión"
+                             src="https://unpkg.com/heroicons@2.1.1/24/outline/arrow-right-on-rectangle.svg" />
+                        <span class="hidden sm:inline">Cerrar sesión</span>
+                    </button>
+                </form>
+            }
+            else
+            {
+                <a asp-controller="Account" asp-action="Login"
+                   class="inline-flex items-center gap-1 text-gray-700 hover:text-gray-900 transition">
+                    <img class="h-5 w-5" alt="Iniciar sesión"
+                         src="https://unpkg.com/heroicons@2.1.1/24/outline/arrow-left-on-rectangle.svg" />
+                    <span class="hidden sm:inline">Iniciar sesión</span>
+                </a>
+                <a asp-controller="Account" asp-action="Register"
+                   class="bg-black text-white px-3 py-2 rounded-lg hover:bg-gray-800 flex items-center gap-1 transition focus:outline-none focus:ring-2 focus:ring-black/40">
+                    <img class="h-5 w-5" alt="Registrarse"
+                         src="https://unpkg.com/heroicons@2.1.1/24/outline/user-plus.svg" />
+                    <span class="hidden sm:inline">Registrarse</span>
+                </a>
+            }
+        </div>
+    </div>
+
+    <!-- Panel móvil -->
+    <div id="menuPanel" class="hidden md:hidden border-t border-gray-200 bg-white" aria-hidden="true">
+        <div class="px-4 py-3 flex flex-col gap-3">
+            <a asp-controller="Store" asp-action="Index"
+               class="inline-flex items-center gap-2 text-gray-700 hover:text-gray-900 transition">
+                <img class="h-5 w-5" alt="Tienda"
+                     src="https://unpkg.com/heroicons@2.1.1/24/outline/magnifying-glass.svg" />
+                Tienda
+            </a>
+            <a asp-controller="ShoppingCart" asp-action="Index"
+               class="inline-flex items-center gap-2 text-gray-700 hover:text-gray-900 transition">
+                <img class="h-5 w-5" alt="Carrito"
+                     src="https://unpkg.com/heroicons@2.1.1/24/outline/shopping-cart.svg" />
+                Carrito
+            </a>
+
+            @if (User.IsInRole("Admin"))
+            {
+                <div class="pt-3 mt-3 border-t border-gray-200">
+                    <p class="text-xs uppercase text-gray-500 mb-2 font-medium">Administración</p>
+                    <a asp-controller="StoreManager" asp-action="Index"
+                       class="block mb-1 text-gray-700 hover:text-gray-900 inline-flex items-center gap-2">
+                        <img class="h-5 w-5" alt="Gorras"
+                             src="https://unpkg.com/heroicons@2.1.1/24/outline/rectangle-stack.svg" />
+                        Gorras
+                    </a>
+                    <a asp-controller="Genres" asp-action="Index"
+                       class="block mb-1 text-gray-700 hover:text-gray-900 inline-flex items-center gap-2">
+                        <img class="h-5 w-5" alt="Tipos"
+                             src="https://unpkg.com/heroicons@2.1.1/24/outline/tag.svg" />
+                        Tipos
+                    </a>
+                    <a asp-controller="Artists" asp-action="Index"
+                       class="block text-gray-700 hover:text-gray-900 inline-flex items-center gap-2">
+                        <img class="h-5 w-5" alt="Marcas"
+                             src="https://unpkg.com/heroicons@2.1.1/24/outline/user-group.svg" />
+                        Marcas
+                    </a>
+                </div>
+            }
+
+            <div class="pt-3 mt-3 border-t border-gray-200">
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    <form asp-controller="Account" asp-action="Logout" method="post" class="inline-flex w-full">
+                        @Html.AntiForgeryToken()
+                        <button class="w-full bg-black text-white py-2 rounded-lg hover:bg-gray-800 inline-flex items-center justify-center gap-2 transition focus:ring-2 focus:ring-black/40" title="Cerrar sesión">
+                            <img class="h-5 w-5" alt="Cerrar sesión"
+                                 src="https://unpkg.com/heroicons@2.1.1/24/outline/arrow-right-on-rectangle.svg" />
+                            Cerrar sesión
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Login"
+                       class="block text-gray-700 hover:text-gray-900 mb-2 inline-flex items-center gap-2">
+                        <img class="h-5 w-5" alt="Iniciar sesión"
+                             src="https://unpkg.com/heroicons@2.1.1/24/outline/arrow-left-on-rectangle.svg" />
+                        Iniciar sesión
+                    </a>
+                    <a asp-controller="Account" asp-action="Register"
+                       class="block bg-black text-white py-2 rounded-lg hover:bg-gray-800 inline-flex items-center justify-center gap-2 transition focus:ring-2 focus:ring-black/40">
+                        <img class="h-5 w-5" alt="Registrarse"
+                             src="https://unpkg.com/heroicons@2.1.1/24/outline/user-plus.svg" />
+                        Registrarse
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</nav>
+
+@section Scripts {
+<script>
+  (function () {
+    const btn = document.getElementById('menuToggle');
+    const panel = document.getElementById('menuPanel');
+    const iconOpen = document.getElementById('iconOpen');
+    const iconClose = document.getElementById('iconClose');
+    if (!btn || !panel) return;
+
+    btn.addEventListener('click', function () {
+      const isHidden = panel.classList.contains('hidden');
+      panel.classList.toggle('hidden');
+      panel.setAttribute('aria-hidden', isHidden ? 'false' : 'true');
+      btn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+      if (iconOpen && iconClose) {
+        iconOpen.classList.toggle('hidden');
+        iconClose.classList.toggle('hidden');
+      }
+    });
+  })();
+</script>
+}

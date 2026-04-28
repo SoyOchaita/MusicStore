@@ -1,35 +1,78 @@
-@model IEnumerable<MusicStore.Models.Genre>
-
+ï»¿@model IEnumerable<MusicStore.Models.Genre>
 @{
-    ViewData["Title"] = "Index";
+  ViewData["Title"] = "Administracion de tipos";
+  ViewData["Section"] = "Tipos";
+    ViewData["Breadcrumb"] = "Listado";
 }
 
-<h1>Administrar Géneros</h1>
+<main class="min-h-screen bg-gray-50 px-4 sm:px-6 lg:px-8 py-10">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8">
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 flex items-center gap-2">
+      <!-- Heroicon: tag -->
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 3h6a2 2 0 012 2v6a2 2 0 01-.586 1.414l-7 7a2 2 0 01-2.828 0l-4-4a2 2 0 010-2.828l7-7A2 2 0 019 3z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h.01" />
+      </svg>
+      Administracion de tipos
+    </h1>
+    <a asp-action="Create"
+       class="bg-black text-white px-5 py-2.5 rounded-lg shadow hover:bg-gray-800 transition flex items-center gap-2 justify-center text-sm sm:text-base">
+      <!-- Heroicon: plus -->
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+      </svg>
+      Agregar nuevo
+    </a>
+  </div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
+  <!-- Tabla -->
+  <div class="overflow-x-auto bg-white shadow-md rounded-xl border border-gray-200">
+    <table class="w-full text-left border-collapse">
+      <thead class="bg-gray-100 text-gray-700 uppercase text-sm font-semibold">
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th></th>
+          <th class="p-4 text-left w-1/6">ID</th>
+          <th class="p-4 text-left">Nombre</th>
+          <th class="p-4 text-right w-1/3">Acciones</th>
         </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+      </thead>
+
+      <tbody class="divide-y divide-gray-200 text-gray-800">
+        @if (Model != null && Model.Any())
+        {
+            foreach (var item in Model)
+            {
+                <tr class="hover:bg-gray-50 transition-colors">
+                  <td class="p-4 font-medium text-gray-600">@item.Id</td>
+                  <td class="p-4">@item.Name</td>
+                  <td class="p-4">
+                    <div class="flex flex-wrap sm:flex-nowrap gap-2 justify-end">
+                      <a asp-action="Edit" asp-route-id="@item.Id"
+                         class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-md text-sm font-medium transition">
+                        Editar
+                      </a>
+                      <a asp-action="Details" asp-route-id="@item.Id"
+                         class="bg-gray-700 hover:bg-gray-800 text-white px-3 py-1.5 rounded-md text-sm font-medium transition">
+                        Detalles
+                      </a>
+                      <a asp-action="Delete" asp-route-id="@item.Id"
+                         class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-md text-sm font-medium transition">
+                        Eliminar
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+              <td colspan="3" class="p-6 text-center text-gray-500 italic">
+                No hay tipos registrados.
+              </td>
+            </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</main>
